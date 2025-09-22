@@ -24,11 +24,11 @@ COPY pkg/ pkg/
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o manager ./main.go
 
 # -------------- runner container --------------
-FROM alpine:3.20 AS runner
+FROM tencentos/tencentos3-minimal AS runner
 
 LABEL maintainer="Tencent BlueKing"
 
-RUN apk --update --no-cache add bash ca-certificates
+RUN yum -y install ca-certificates && yum clean all && rm -rf /var/cache/yum
 
 WORKDIR /
 

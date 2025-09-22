@@ -16,18 +16,22 @@ COPY ./package_vue/ /package_vue/
 RUN npm run build
 
 ######### Nginx part #########
-FROM smebberson/alpine-nginx:3.0.0 AS PageServing
+FROM tencentos/tencentos3-minimal AS PageServing
 
 ARG BKPAAS_BUILD_VERSION="tag: null, commitID: ^HEAD, buildID: null, buildTime: null"
 ENV BKPAAS_BUILD_VERSION=${BKPAAS_BUILD_VERSION}
 
-RUN apk update && apk add gettext
-RUN ln -sf /dev/stdout /var/log/nginx/access.log && \
+RUN yum install -y nginx gettext && \
+    yum clean all && \
+    rm -rf /var/cache/yum && \
+    ln -sf /dev/stdout /var/log/nginx/access.log && \
     ln -sf /dev/stderr /var/log/nginx/error.log
 
-# clean useless files
-RUN cd /var/www && rm -r localhost
 # cp nginx files
 COPY custom-configs/default /etc/nginx/conf.d/default.conf
-COPY custom-configs/30-render /etc/cont-init.d/30-render
-COPY --from=0 /package_vue/dist/ /var/www/
+COPY --from=StaticBuilding /package_vue/dist/ /var/www/
+
+RUN printf '#!/bin/bash\nmv /var/www/index.html{,.template} && envsubst </var/www/index.html.template >/var/www/index.html\nexec nginx -g "daemon off;"' > /init && \
+    chmod +x /init
+
+CMD ["/init"]
