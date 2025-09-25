@@ -24,17 +24,24 @@ variable "APT_SOURCES" {
 
 variable "BASE_PACKAGES" {
   default = <<EOF
-  libssl-dev libc6-dev default-libmysqlclient-dev git
+  openssl-devel glibc-devel mysql-devel git
   EOF
 }
 
+variable "BASE_IMAGE" {
+  default = "tencentos/tencentos3-minimal"
+}
+
+variable "BASE_TAG" {
+  default = "latest"
+}
 
 target "heroku-build-noble" {
   dockerfile = "build.Dockerfile"
   args = {
-    TAG = "24.v149"
+    TAG = BASE_TAG
+    IMAGE = BASE_IMAGE
     STACK_ID = "heroku-24"
-    sources = "${APT_SOURCES}"
     packages = "${BASE_PACKAGES}"
   }
   tags = ["${STACK_BUILDER_IMAGE_NAME}:${STACK_BUILDER_TAG}"]
@@ -44,9 +51,9 @@ target "heroku-build-noble" {
 target "heroku-run-noble" {
   dockerfile = "run.Dockerfile"
   args = {
-    TAG = "24.v149"
+    TAG = BASE_TAG
+    IMAGE = BASE_IMAGE
     STACK_ID = "heroku-24"
-    sources = "${APT_SOURCES}"
     packages = "${BASE_PACKAGES}"
   }
   tags = ["${STACK_RUNNER_IMAGE_NAME}:${STACK_RUNNER_TAG}"]

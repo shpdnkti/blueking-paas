@@ -1,12 +1,12 @@
-ARG IMAGE=heroku/heroku
-ARG TAG=24.v149
+ARG IMAGE=tencentos/tencentos3-minimal
+ARG TAG=latest
 
 FROM ${IMAGE}:${TAG}
 
 ARG STACK_ID="heroku-24"
 ARG sources
 ARG packages
-ARG package_args='--allow-downgrades --allow-remove-essential --allow-change-held-packages --no-install-recommends'
+#ARG package_args='--allow-downgrades --allow-remove-essential --allow-change-held-packages --no-install-recommends'
 
 
 # Set required CNB information
@@ -25,17 +25,23 @@ ARG TIME_ZONE=Asia/Shanghai
 ENV TZ=${TIME_ZONE}
 RUN rm /etc/localtime && ln -s /usr/share/zoneinfo/${TIME_ZONE} /etc/localtime
 
-RUN echo "$sources" > /etc/apt/sources.list
+RUN yum clean all && \
+    yum update -y && \
+    yum install -y \
+        glibc-langpack-en \
+        tzdata \
+        ${packages} && \
+    yum clean all && \
+    rm -rf /var/cache/yum
 
-RUN echo "debconf debconf/frontend select noninteractive" | debconf-set-selections && \
-    export DEBIAN_FRONTEND=noninteractive && \
-    apt-get -y $package_args update && \
-    apt-get -y $package_args install locales && \
-    locale-gen en_US.UTF-8 && \
-    update-locale LANG=en_US.UTF-8 LANGUAGE=en_US.UTF-8 LC_ALL=en_US.UTF-8 && \
-    echo $packages | xargs apt-get -y $package_args install && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+# RUN localedef -i en_US -f UTF-8 en_US.UTF-8 && \
+#     echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
+#     export LANG=en_US.UTF-8 && \
+#     export LC_ALL=en_US.UTF-8
+
+ENV LANG=en_US.UTF-8 \
+    LC_ALL=en_US.UTF-8 \
+    LANGUAGE=en_US:en
 
 ENV HOME /app
 WORKDIR /app

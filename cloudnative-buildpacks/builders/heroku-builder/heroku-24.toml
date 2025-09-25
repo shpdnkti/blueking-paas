@@ -93,5 +93,5 @@ version = "5.6.1"
 
 [stack]
 id = "heroku-24"
-run-image = "mirrors.tencent.com/bkpaas/run-heroku-noble:latest"
-build-image = "mirrors.tencent.com/bkpaas/build-heroku-noble:latest"
+run-image = "run-heroku:latest"
+build-image = "build-heroku:latest"
