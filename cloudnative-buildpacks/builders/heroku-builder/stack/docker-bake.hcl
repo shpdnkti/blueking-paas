@@ -29,7 +29,7 @@ variable "BASE_PACKAGES" {
 }
 
 variable "BASE_IMAGE" {
-  default = "tencentos/tencentos3-minimal"
+  default = "tencentos/tencentos4-minimal"
 }
 
 variable "BASE_TAG" {

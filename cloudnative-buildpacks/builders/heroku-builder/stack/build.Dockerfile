@@ -1,4 +1,4 @@
-ARG IMAGE=tencentos/tencentos3-minimal
+ARG IMAGE=tencentos/tencentos4-minimal
 ARG TAG=latest
 
 FROM ${IMAGE}:${TAG}
